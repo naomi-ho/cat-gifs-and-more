@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIFs</title>
+    <style>
+        * { 
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cats {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            gap: 10px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        input {
+            width: 200px;
+        }
+
+        input, button {
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 8px;
+        margin: 2px;
+        border: 1px solid #ccc; /* consistent border */
+        border-radius: 5px;
+        outline: none; /* removes focus outline */
+        }
+
+        input:focus {
+            border-color: blue; /* clear indication of focus without resizing */
+        }
+    </style>
+</head>
+<body>
+    <div class="cats">
+        <img src="#" alt="cat gif">
+        <button id="btn" onclick="getGIF()">New Cat GIF</button>
+    </div>
+    <div class="search-container">
+        <input type="text" placeholder="Search another GIF" name="text" id="text">
+        <button type="button" onclick="searchGIF(document.getElementById('text').value)">Submit</button>
+    </div>
+
+    <script>
+        const img = document.querySelector('img');
+
+        function getGIF() {
+            fetch('https://api.giphy.com/v1/gifs/translate?api_key=lUvrToKfW4p2A2kINlEwppBLkW1Rwp4N&s=cats', {mode: 'cors'})
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(response) {
+                img.src = response.data.images.original.url;
+            })
+            .catch(error => console.error("Error fetching the GIF:", error));
+        }
+
+        function searchGIF(text) {
+            // encodeURIComponent makes sure the search text is properly encoded for use in a URL
+            // important for handling spaces and special characters in the search query
+            fetch(`https://api.giphy.com/v1/gifs/search?api_key=lUvrToKfW4p2A2kINlEwppBLkW1Rwp4N&q=${encodeURIComponent(text)}`, {mode: 'cors'})
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(response) {
+                // checks to see if the search returned any results
+                if (response.data.length > 0) {
+                    // displays the 1st GIF from results
+                    img.src = response.data[0].images.original.url;
+                } else {
+                    document.textContent = "No GIFs found for your query.";
+                }
+            })
+            .catch(error => console.error("Error fetching the GIF:", error));
+        }
+
+        // call getGIF when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', getGIF);
+    </script>
+</body>
+</html>
